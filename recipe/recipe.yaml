@@ -1,33 +1,38 @@
 schema_version: 1
 
 context:
-  version: "1.2026.3"
-  python_min: "3.11"
+  version: "3.2026.3.post1"
 
 package:
   name: timezonefinder-data
   version: ${{ version }}
 
 source:
-  # The monorepo tags this distribution separately from `timezonefinder`
-  # itself, and the dataset is committed, so the tag archive carries it.
-  url: https://github.com/jannikmi/timezonefinder/archive/refs/tags/data-v${{ version }}.tar.gz
-  sha256: 062034e3c36a5ab61b91f2d7f10c54ea33948bddece2b5eac4c5d1da416f7c93
+  # The released wheel, not the tag archive. Upstream stopped committing the
+  # dataset at the 3.x format generation ("the dataset is git-ignored" -
+  # .github/workflows/compile_data.yml): it is compiled in CI and the wheel that
+  # run produces is what the `data-v*` tag publishes. The tag archive therefore
+  # carries only the four source files, and building from it would produce a
+  # wheel with no dataset in it - which installs cleanly and fails at the first
+  # lookup. No sdist is published for any release of this distribution, so the
+  # wheel is the only artefact that contains the data.
+  url: https://pypi.org/packages/py3/t/timezonefinder-data/timezonefinder_data-${{ version }}-py3-none-any.whl
+  file_name: timezonefinder_data-${{ version }}-py3-none-any.whl
+  sha256: d71b3814362e69cb208f8d30249efe2fa0d2cd55579679c5ae1727cd38840606
 
 build:
   number: 0
   noarch: python
-  script: ${{ PYTHON }} -m pip install ./packages/timezonefinder-data -vv --no-deps --no-build-isolation
+  script:
+    - ${{ PYTHON }} -m pip install timezonefinder_data-${{ version }}-py3-none-any.whl -vv --no-deps --no-build-isolation
+    # `license_file` below needs the licence as a file in the work directory;
+    # installing a wheel only ever puts it inside the prefix.
+    - ${{ PYTHON }} -c "import shutil, zipfile; w='timezonefinder_data-${{ version }}-py3-none-any.whl'; shutil.copyfileobj(zipfile.ZipFile(w).open('timezonefinder_data-${{ version }}.dist-info/licenses/DATA_LICENSE'), open('DATA_LICENSE', 'wb'))"
 
 requirements:
   host:
     - python ${{ python_min }}.*
     - pip
-    # Not a floor to relax: below 62.3 setuptools does not expand `**` in
-    # package-data recursively, so the build silently produces a wheel with no
-    # dataset in it, which installs cleanly and fails at the first lookup.
-    # Upstream says so in its own pyproject.toml.
-    - setuptools >=62.3
   run:
     - python >=${{ python_min }}
 
@@ -67,7 +72,7 @@ about:
     The data derives from evansiroky/timezone-boundary-builder and is licensed
     under the ODbL, which is not the licence of `timezonefinder` itself.
   license: ODbL-1.0
-  license_file: packages/timezonefinder-data/DATA_LICENSE
+  license_file: DATA_LICENSE
   homepage: https://github.com/jannikmi/timezonefinder
   repository: https://github.com/jannikmi/timezonefinder
   documentation: https://timezonefinder.readthedocs.io/en/latest/
