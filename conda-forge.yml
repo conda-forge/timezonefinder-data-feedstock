@@ -5,3 +5,10 @@ github:
 conda_build:
   error_overlinking: true
 conda_forge_output_validation: true
+# `hint_pip_no_build_backend` fires because `pip` is in `host` with no build backend
+# beside it. That is correct here and must stay that way: the recipe installs a
+# prebuilt wheel with `--no-build-isolation`, so no backend is ever invoked and
+# adding `setuptools` would only imply a source build that does not happen.
+linter:
+  skip:
+    - hint_pip_no_build_backend
