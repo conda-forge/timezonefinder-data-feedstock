@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "3.2026.3.post1"
+  version: "3.2026.4"
 
 package:
   name: timezonefinder-data
@@ -18,7 +18,7 @@ source:
   # wheel is the only artefact that contains the data.
   url: https://pypi.org/packages/py3/t/timezonefinder-data/timezonefinder_data-${{ version }}-py3-none-any.whl
   file_name: timezonefinder_data-${{ version }}-py3-none-any.whl
-  sha256: d71b3814362e69cb208f8d30249efe2fa0d2cd55579679c5ae1727cd38840606
+  sha256: 7824afdbabaefd311cebe3ced368f29f616484533a13038f666bdfecc43bcbfa
 
 build:
   number: 0
